@@ -45,9 +45,9 @@ class AlpicoolLockSwitch(AlpicoolEntity, SwitchEntity):
     async def async_turn_on(self, **kwargs: Any) -> None:
         """Turn the lock on."""
         await self.api.async_set_values({"locked": True})
-        await self.async_refresh_after_write()
+        await self._async_refresh_after_write()
 
     async def async_turn_off(self, **kwargs: Any) -> None:
         """Turn the lock off."""
         await self.api.async_set_values({"locked": False})
-        await self.async_refresh_after_write()
+        await self._async_refresh_after_write()
