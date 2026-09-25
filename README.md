@@ -36,7 +36,7 @@ MAENTUM compressor cooler boxes speak the same protocol.
 
 | Model | Status |
 |---|---|
-| ICECUBE X 50 | Tested on 2026-09-25: discovered automatically (advertises service `0x1234`, name `A1-…`), status and target temperature confirmed, settings are read correctly. Single zone. |
+| ICECUBE X 50 | Tested on 2026-09-25: advertises service `0x1234` (used for discovery) under the name `A1-…`; status and target temperature confirmed, settings are read correctly. Single zone. |
 | Other MAENTUM / Plug-in Festivals boxes | Reported by users to use the same protocol, not tested here. Check your box with the probe script in [docs/maentum](docs/maentum/README.md). |
 
 Notes:
