@@ -328,3 +328,48 @@ async def test_unload_disconnects(
 
     assert fake_fridge.is_connected is False
     assert hass.states.get("climate.fridge_left").state == "unavailable"
+
+
+async def test_setup_says_when_only_passive_receivers_hear_the_fridge(
+    hass: HomeAssistant, enable_bluetooth: None
+) -> None:
+    """A fridge heard only by e.g. Shelly devices needs a connectable adapter."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        unique_id=ADDRESS,
+        data={CONF_ADDRESS: ADDRESS, CONF_NAME: "Fridge"},
+    )
+    entry.add_to_hass(hass)
+
+    def _device(hass, address, connectable=True):
+        return None if connectable else MagicMock()
+
+    with patch.object(
+        api_module.bluetooth, "async_ble_device_from_address", side_effect=_device
+    ):
+        await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+    assert entry.state is ConfigEntryState.SETUP_RETRY
+    assert "cannot connect" in entry.reason
+
+
+async def test_setup_says_when_no_receiver_hears_the_fridge(
+    hass: HomeAssistant, enable_bluetooth: None
+) -> None:
+    """A fridge nobody hears points at the address or the range."""
+    entry = MockConfigEntry(
+        domain=DOMAIN,
+        unique_id=ADDRESS,
+        data={CONF_ADDRESS: ADDRESS, CONF_NAME: "Fridge"},
+    )
+    entry.add_to_hass(hass)
+
+    with patch.object(
+        api_module.bluetooth, "async_ble_device_from_address", return_value=None
+    ):
+        await hass.config_entries.async_setup(entry.entry_id)
+        await hass.async_block_till_done()
+
+    assert entry.state is ConfigEntryState.SETUP_RETRY
+    assert "Check the address" in entry.reason
