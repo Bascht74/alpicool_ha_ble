@@ -371,3 +371,18 @@ async def test_real_dual_zone_keeps_second_zone() -> None:
 
     await async_setup_entry(hass, entry, added.extend)
     assert [e._zone for e in added] == ["left", "right"]
+
+
+# --- Voltage keeps its tenth ----------------------------------------------
+
+
+def test_battery_voltage_is_shown_with_one_decimal() -> None:
+    """The fridge reports 14.6 V; the UI must not round it to 15 V."""
+    sensor = AlpicoolSensor(
+        _entry(),
+        _api(bat_vol_int=14, bat_vol_dec=6),
+        "battery_voltage",
+        SENSORS["battery_voltage"],
+    )
+    assert sensor.native_value == 14.6
+    assert sensor.suggested_display_precision == 1
