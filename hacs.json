@@ -1,0 +1,5 @@
+{
+  "name": "MAENTUM Kühlbox (BLE)",
+  "homeassistant": "2025.2.0",
+  "render_readme": true
+}
