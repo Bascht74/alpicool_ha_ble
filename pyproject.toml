@@ -1,0 +1,39 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "maentum-probe"
+version = "0.1.0"
+description = "Check whether a MAENTUM / Plug In Festivals cooler box speaks the Alpicool BLE protocol"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.13"
+dependencies = ["bleak>=0.22"]
+
+[project.optional-dependencies]
+test = ["pytest>=8", "ruff>=0.6"]
+
+[project.scripts]
+maentum-probe = "maentum_probe.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF", "PL"]
+ignore = ["PLR2004", "PLR0913", "RUF012"]
+
+[tool.ruff.lint.isort]
+force-sort-within-sections = true
+known-first-party = ["custom_components"]
+combine-as-imports = true

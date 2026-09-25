@@ -1,0 +1,122 @@
+{
+  "config": {
+    "flow_title": "{name}",
+    "step": {
+      "user": {
+        "title": "Kühlbox auswählen",
+        "description": "Mit ★ markierte Geräte passen zu einem bekannten Namen oder Dienst. Die Box muss eingeschaltet und darf nicht mit der Handy-App verbunden sein.",
+        "data": {
+          "address": "Bluetooth-Gerät"
+        }
+      },
+      "bluetooth_confirm": {
+        "description": "{name} einrichten? Home Assistant verbindet sich einmal und liest den Status."
+      }
+    },
+    "error": {
+      "cannot_connect": "Keine Verbindung oder keine Antwort. Handy-App schließen, näher heran und erneut versuchen.",
+      "not_supported": "Dieses Gerät bietet den Alpicool-Dienst (0x1234) nicht an. Es ist vermutlich keine kompatible Box."
+    },
+    "abort": {
+      "already_configured": "Gerät ist bereits eingerichtet",
+      "already_in_progress": "Einrichtung läuft bereits",
+      "no_devices_found": "Keine verbindbaren Bluetooth-Geräte gefunden"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "scan_interval": "Abfrageintervall",
+          "keep_connected": "Verbindung dauerhaft halten"
+        },
+        "data_description": {
+          "scan_interval": "Sekunden zwischen zwei Statusabfragen.",
+          "keep_connected": "Solange Home Assistant verbunden ist, kann sich die Handy-App nicht verbinden. Ausschalten, um nach jeder Abfrage zu trennen."
+        }
+      }
+    }
+  },
+  "entity": {
+    "climate": {
+      "fridge": {
+        "state_attributes": {
+          "preset_mode": {
+            "state": {
+              "max": "Max",
+              "eco": "Eco"
+            }
+          }
+        }
+      },
+      "zone1": {
+        "name": "Zone 1",
+        "state_attributes": {
+          "preset_mode": {
+            "state": {
+              "max": "Max",
+              "eco": "Eco"
+            }
+          }
+        }
+      },
+      "zone2": {
+        "name": "Zone 2",
+        "state_attributes": {
+          "preset_mode": {
+            "state": {
+              "max": "Max",
+              "eco": "Eco"
+            }
+          }
+        }
+      }
+    },
+    "sensor": {
+      "zone1_temperature": {
+        "name": "Temperatur Zone 1"
+      },
+      "zone2_temperature": {
+        "name": "Temperatur Zone 2"
+      },
+      "battery_voltage": {
+        "name": "Versorgungsspannung"
+      },
+      "battery_percent": {
+        "name": "Batterie"
+      }
+    },
+    "switch": {
+      "controls_locked": {
+        "name": "Tastensperre"
+      }
+    },
+    "select": {
+      "battery_saver": {
+        "name": "Batterieschutz",
+        "state": {
+          "low": "Niedrig",
+          "mid": "Mittel",
+          "high": "Hoch"
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "update_failed": {
+      "message": "Box konnte nicht gelesen werden: {error}"
+    },
+    "command_failed": {
+      "message": "Befehl fehlgeschlagen: {error}"
+    },
+    "no_status": {
+      "message": "Noch kein Status bekannt"
+    },
+    "temperature_out_of_range": {
+      "message": "{value} liegt außerhalb des von der Box gemeldeten Bereichs {min} bis {max}"
+    },
+    "not_in_range": {
+      "message": "{address} ist für keinen Bluetooth-Adapter oder Proxy erreichbar"
+    }
+  }
+}

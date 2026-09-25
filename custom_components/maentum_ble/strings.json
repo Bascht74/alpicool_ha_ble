@@ -1,0 +1,122 @@
+{
+  "config": {
+    "flow_title": "{name}",
+    "step": {
+      "user": {
+        "title": "Select cooler box",
+        "description": "Boxes marked with ★ match a known name or service. The box must be switched on and must not be connected to the phone app.",
+        "data": {
+          "address": "Bluetooth device"
+        }
+      },
+      "bluetooth_confirm": {
+        "description": "Set up {name}? Home Assistant connects once to read the status."
+      }
+    },
+    "error": {
+      "cannot_connect": "Could not connect or no answer. Close the phone app, move closer and try again.",
+      "not_supported": "This device does not offer the Alpicool service (0x1234). It is probably not a compatible box."
+    },
+    "abort": {
+      "already_configured": "Device is already configured",
+      "already_in_progress": "Setup is already in progress",
+      "no_devices_found": "No connectable Bluetooth devices found"
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "data": {
+          "scan_interval": "Polling interval",
+          "keep_connected": "Keep connection open"
+        },
+        "data_description": {
+          "scan_interval": "Seconds between two status queries.",
+          "keep_connected": "While Home Assistant is connected, the phone app cannot connect. Turn this off to disconnect after every query."
+        }
+      }
+    }
+  },
+  "entity": {
+    "climate": {
+      "fridge": {
+        "state_attributes": {
+          "preset_mode": {
+            "state": {
+              "max": "Max",
+              "eco": "Eco"
+            }
+          }
+        }
+      },
+      "zone1": {
+        "name": "Zone 1",
+        "state_attributes": {
+          "preset_mode": {
+            "state": {
+              "max": "Max",
+              "eco": "Eco"
+            }
+          }
+        }
+      },
+      "zone2": {
+        "name": "Zone 2",
+        "state_attributes": {
+          "preset_mode": {
+            "state": {
+              "max": "Max",
+              "eco": "Eco"
+            }
+          }
+        }
+      }
+    },
+    "sensor": {
+      "zone1_temperature": {
+        "name": "Temperature zone 1"
+      },
+      "zone2_temperature": {
+        "name": "Temperature zone 2"
+      },
+      "battery_voltage": {
+        "name": "Supply voltage"
+      },
+      "battery_percent": {
+        "name": "Battery"
+      }
+    },
+    "switch": {
+      "controls_locked": {
+        "name": "Control panel lock"
+      }
+    },
+    "select": {
+      "battery_saver": {
+        "name": "Battery protection",
+        "state": {
+          "low": "Low",
+          "mid": "Medium",
+          "high": "High"
+        }
+      }
+    }
+  },
+  "exceptions": {
+    "update_failed": {
+      "message": "Could not read the box: {error}"
+    },
+    "command_failed": {
+      "message": "Command failed: {error}"
+    },
+    "no_status": {
+      "message": "No status known yet"
+    },
+    "temperature_out_of_range": {
+      "message": "{value} is outside the range {min} to {max} reported by the box"
+    },
+    "not_in_range": {
+      "message": "{address} is not in range of any Bluetooth adapter or proxy"
+    }
+  }
+}
