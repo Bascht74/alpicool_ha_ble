@@ -2,7 +2,7 @@
 
 Anleitung, Recherche und Werkzeuge, um MAENTUM-Kühlboxen (früher „Plug In Festivals“) per Bluetooth Low Energy in Home Assistant einzubinden.
 
-> **Stand 25.09.2026, bitte lesen:** Für ältere Plug-In-Festivals-Boxen gibt es Nutzerberichte, dass sie das offene **Alpicool-Protokoll** sprechen. Für die **IceCube X** (eigene App „MAENTUM IceCubeX“) ist das **nicht belegt**. Prüfe deine Box deshalb zuerst mit Schritt 1. Nicht mit MAENTUM verbunden oder von MAENTUM unterstützt.
+> **Stand 25.09.2026, bitte lesen:** Für ältere Plug-In-Festivals-Boxen gibt es Nutzerberichte, dass sie das offene **Alpicool-Protokoll** sprechen. Für die **IceCube X 50** ist es seit dem 25.09.2026 an einem Gerät belegt: Sie bietet Dienst 0x1234 an und beantwortet die Statusabfrage im Alpicool-Format (siehe [RECHERCHE.md](RECHERCHE.md), Abschnitt 5). Schreiben (Sollwert setzen) ist noch nicht an der Box getestet. Andere Modelle prüfst du zuerst mit Schritt 1. Nicht mit MAENTUM verbunden oder von MAENTUM unterstützt.
 
 ## Inhalt
 

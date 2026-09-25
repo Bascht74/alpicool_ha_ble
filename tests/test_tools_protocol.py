@@ -268,3 +268,24 @@ def test_bind_answer_is_not_status() -> None:
     assert frame.payload == b"\x01"
     assert frame.checksum is ChecksumState.VALID
     assert not is_status_frame(frame)
+
+
+def test_icecubex_status_capture() -> None:
+    """Query answer of a MAENTUM ICECUBE X 50 (nRF Connect, 2026-09-25)."""
+    raw = bytes.fromhex(
+        "FEFE2D01000101020414EC020000FDFD00000564"
+        "0E06000000000000000080000A00000000000000"
+        "0000000000000635"
+    )
+    frames = FrameReader().feed(raw)
+    assert len(frames) == 1
+    frame = frames[0]
+    assert frame.checksum is ChecksumState.VALID
+    assert is_status_frame(frame)
+    status = parse_status(frame.payload)
+    assert status.powered_on and not status.locked
+    assert status.zone1.target_temperature == 4
+    assert status.zone1.current_temperature == 5
+    assert status.battery_voltage == 14.6
+    assert status.zone2 is None
+    assert status.running_status == 0

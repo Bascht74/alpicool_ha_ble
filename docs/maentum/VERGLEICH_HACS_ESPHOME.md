@@ -28,4 +28,4 @@ Beide Wege sprechen dasselbe Protokoll mit der Box. Der Unterschied ist, **wer**
 
 Ein eigener ESPHome-Bluetooth-Proxy ist ein guter Mittelweg: Der ESP32 steht bei der Box, die Logik bleibt aber in der HACS-Integration.
 
-Offen bleibt für beide Wege, ob die **IceCubeX** überhaupt dieses Protokoll spricht (siehe [RECHERCHE.md](RECHERCHE.md), Abschnitt 5).
+Die **IceCubeX** spricht dieses Protokoll (Statusabfrage am 25.09.2026 an einem Gerät belegt, siehe [RECHERCHE.md](RECHERCHE.md), Abschnitt 5).

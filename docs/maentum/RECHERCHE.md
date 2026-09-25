@@ -17,7 +17,7 @@ Stand: 25.09.2026. Jede Aussage ist einer Quelle zugeordnet und nach Belastbarke
 | Aktuelle Kühlboxen: IceCube (40 L), IceCube DUAL (zwei Zonen), IceCube X (50 L) | belegt | [maentum.de Kühlboxen-Vergleich](https://maentum.de/pages/kuehlboxen-vergleich) |
 | Die IceCubeX lässt sich per Bluetooth über die „MAENTUM App“ steuern (Temperatur, minimale Spannung) | belegt | [techtest.org Test der IceCubeX](https://techtest.org/maentum-icecubex-die-effizienteste-kompressor-kuehlbox-im-test/) |
 | Die App „MAENTUM IceCubeX“ stammt von der Plug-in Festivals GmbH, Paket `com.maentum`, v1.0 vom 11.11.2024, v1.0.4 vom 16.09.2025 | belegt | [App Store](https://apps.apple.com/de/app/maentum-icecubex/id6737261611), [Google Play](https://play.google.com/store/apps/details?id=com.maentum) |
-| Welches BLE-Protokoll die MAENTUM-App bzw. die IceCubeX nutzt | **unbekannt** | keine öffentliche Quelle; APK aus dieser Umgebung nicht abrufbar |
+| Die IceCubeX spricht das Alpicool-Protokoll: Name `A1-…`, Dienst 0x1234 mit 0x1235 (Write Without Response) und 0x1236 (Notify); Query `FEFE03010200` wird mit einem 48-Byte-Statusrahmen beantwortet (Prüfsumme korrekt) | **belegt an einem Gerät** | eigener Test mit nRF Connect an einer ICECUBE X 50, 25.09.2026 (Abschnitt 5) |
 
 ## 2. Hinweise, dass (ältere) Plug-In-Festivals-Boxen das Alpicool-Protokoll sprechen
 
@@ -54,7 +54,13 @@ Vollständig in [PROTOKOLL.md](PROTOKOLL.md). Hauptquellen:
 
 ## 5. Was offen ist
 
-1. **Protokoll der IceCubeX** (Sebastians Modell): unbekannt. Prüfung per `nRF Connect` oder `tools/maentum_probe.py services <MAC>`.
+1. **Protokoll der IceCubeX** (Sebastians Modell): **geklärt** am 25.09.2026 mit nRF Connect. Antwort auf Query (drei Notifications, 20 + 20 + 8 Byte):
+   ```
+   FEFE2D01000101020414EC020000FDFD00000564
+   0E06000000000000000080000A00000000000000
+   0000000000000635
+   ```
+   Entschlüsselt: an, Sperre aus, Eco, Batterieschutz hoch, Soll 4 °C, Ist 5 °C, Bereich −20..20 °C, Hysterese 2, °C, Akku 100 %, 14,6 V. Nutzdaten sind 42 statt 18/28 Byte; die Temperatur der zweiten Zone ist 0x80 (−128), *abgeleitet*: keine zweite Zone. Die Bytes 28–41 sind unbekannt. Offen: ob SET (Sollwert setzen) wie bei Alpicool funktioniert.
 2. Gültige Wertebereiche für Hysterese und Startverzögerung: in keiner Quelle dokumentiert.
 3. Bedeutung des Bytes `running_status` (Dual-Zone, Offset 0x1B): laut BrassMonkey unbekannt.
 4. Zweck der zusätzlichen Characteristic `0xFFF1`: laut neftaly unbekannt; das Abonnieren kann bei manchen Firmwares die Verbindung trennen.

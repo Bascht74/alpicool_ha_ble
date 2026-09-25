@@ -282,6 +282,10 @@ def parse_status(payload: bytes) -> FridgeStatus:
     zone2 = None
     running_status = None
     if len(p) >= STATUS_LEN_DUAL_ZONE:
+        running_status = p[27]
+    # A MAENTUM IceCubeX (single zone) sends a long status with 0x80 (-128)
+    # as the temperature of the zone it does not have.
+    if len(p) >= STATUS_LEN_DUAL_ZONE and p[26] != 0x80:
         zone2 = ZoneStatus(
             target_temperature=_s8(p[18]),
             hysteresis=_s8(p[21]),
@@ -291,7 +295,6 @@ def parse_status(payload: bytes) -> FridgeStatus:
             tc_halt=_s8(p[25]),
             current_temperature=_s8(p[26]),
         )
-        running_status = p[27]
     return FridgeStatus(
         locked=bool(p[0]),
         powered_on=bool(p[1]),
