@@ -45,7 +45,7 @@ Notes:
 * Close the MAENTUM app first; the box accepts only one connection at a time.
 * The box answers without the "Bind" step, so the "Pair on start-up (Bind)" option can be switched off.
 
-A German guide (probe script, research notes, HACS vs. ESPHome comparison, code review) is in [docs/maentum](docs/maentum/README.md).
+A guide (probe script, research notes, HACS vs. ESPHome comparison, code review) is in [docs/maentum](docs/maentum/README.md).
 
 ***
 ## Installation
