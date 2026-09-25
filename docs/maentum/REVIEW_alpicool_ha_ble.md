@@ -35,15 +35,3 @@ Die Integration funktioniert im Kern und deckt das Protokoll vollständig ab. Di
 | A3 | Keine `diagnostics.py` | Diagnose mit Rohdaten des letzten Rahmens, hilft bei neuen Modellen wie der IceCubeX |
 | A4 | Fehlertexte und Namen hart kodiert (Englisch) | `translation_key`, `exceptions` in `strings.json` |
 | A5 | CI prüft nur HACS, nicht `hassfest` und nicht die eigenen Tests | Workflow um `hassfest` und `pytest` ergänzen |
-
-Für A1–A4, R3 und R4 gibt es eine fertige, getestete Umsetzung im Branch [`claude/vorlage-integration`](https://github.com/Bascht74/alpicool_ha_ble/tree/claude/vorlage-integration) dieses Forks (MIT). Sie kann als Vorlage für Pull Requests dienen.
-
-## Selbst-Review des Branches `claude/vorlage-integration`
-
-Ehrlicherweise auch die Grenzen der eigenen Umsetzung:
-
-- **Nicht an echter Hardware getestet.** Alle 97 Tests laufen gegen Mitschnitte aus den Quellen und einen simulierten BLE-Client.
-- `hvac_action` meldet nie „kühlt“, weil kein Statusfeld belegt sagt, ob der Kompressor läuft.
-- Keine Number-Entitäten für Hysterese und Startverzögerung, weil die gültigen Bereiche nirgends dokumentiert sind.
-- Keine Fridge/Freezer-Presets für Dual-Zone-Boxen (Gruni22 hat sie als Option), mangels Dokumentation und Testgerät.
-- Die dauerhafte Verbindung sperrt die Handy-App aus; die Option „Verbindung dauerhaft halten“ lässt sich abschalten.
