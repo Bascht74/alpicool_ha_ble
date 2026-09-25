@@ -68,7 +68,6 @@ Danach gibt es eine Klima-Entität (Ein/Aus, Solltemperatur, Max/Eco), Sensoren 
 | Box wird nicht gefunden | Handy-App schließen; Box ein; Abstand verringern; `scan --all` |
 | `services` meldet „NOT present“ | anderes Protokoll, siehe Schritt 1 |
 | `query` bekommt keine Antwort | Box aus- und einschalten; mit `--bind` versuchen und Taste an der Box drücken |
-| HA findet die Box nicht, obwohl Bluetooth eingerichtet ist | HA braucht einen Empfänger, der sich **verbinden** kann: eingebauter Adapter, USB-Stick oder ESPHome-Bluetooth-Proxy in Reichweite. Shelly-Geräte hören nur mit und reichen nicht. Die Meldung beim Einrichten sagt, welcher Fall vorliegt. |
 | Werte in HA veralten | Logs der Integration auf Debug stellen (`logger: logs: custom_components.alpicool_ble: debug`) |
 
 ## Tests des Prüfskripts
