@@ -1,6 +1,6 @@
 # MAENTUM Kühlbox (BLE) – eigenständige Integration (Vorlage)
 
-Dieser Branch enthält eine vollständige Home-Assistant-Integration für Kühlboxen mit dem Alpicool-BLE-Protokoll. Sie ist **nicht** der empfohlene Installationsweg, sondern Vorlage für Beiträge an [Gruni22/alpicool_ha_ble](https://github.com/Gruni22/alpicool_ha_ble). Anleitung, Recherche und Review stehen im Branch `main`.
+Dieser Branch enthält eine vollständige Home-Assistant-Integration für Kühlboxen mit dem Alpicool-BLE-Protokoll. Sie ist **nicht** der empfohlene Installationsweg, sondern Vorlage für Beiträge an [Gruni22/alpicool_ha_ble](https://github.com/Gruni22/alpicool_ha_ble). Anleitung, Recherche und Review stehen im Branch [`claude/maentum-doku-pruefskript`](https://github.com/Bascht74/alpicool_ha_ble/tree/claude/maentum-doku-pruefskript/docs/maentum).
 
 **Nicht an echter Hardware getestet.** Die Tests laufen gegen Mitschnitte aus den Quellen und einen simulierten BLE-Client.
 

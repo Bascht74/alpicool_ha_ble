@@ -12,10 +12,10 @@
   "codeowners": ["@Bascht74"],
   "config_flow": true,
   "dependencies": ["bluetooth_adapters"],
-  "documentation": "https://github.com/Bascht74/maentum-ha",
+  "documentation": "https://github.com/Bascht74/alpicool_ha_ble",
   "integration_type": "device",
   "iot_class": "local_polling",
-  "issue_tracker": "https://github.com/Bascht74/maentum-ha/issues",
+  "issue_tracker": "https://github.com/Bascht74/alpicool_ha_ble/issues",
   "loggers": ["custom_components.maentum_ble"],
   "requirements": ["bleak-retry-connector>=3.5.0"],
   "version": "0.1.0"
