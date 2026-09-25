@@ -30,6 +30,11 @@ This integration supports !!!untested!!! **both single and dual-zone fridges**.
 * For **single-zone** models, only one `climate` entity is created.
 
 ***
+## MAENTUM / Plug In Festivals cooler boxes
+
+Some MAENTUM (formerly Plug In Festivals) boxes are reported to use the same protocol. A German guide with a probe script to check your box, research notes, a HACS vs. ESPHome comparison and a code review is in [docs/maentum](docs/maentum/README.md).
+
+***
 ## Installation
 
 Easiest install is via [HACS](https://hacs.xyz/):
