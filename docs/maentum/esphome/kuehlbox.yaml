@@ -1,0 +1,72 @@
+# Beispiel: MAENTUM / Plug In Festivals Kühlbox über einen ESP32 an Home Assistant.
+#
+# Nutzt die externe Komponente neftaly/esphome-alpicool. Stand 2026-09-25:
+# - Das Repository hat KEINE Lizenzdatei. Die Einbindung per external_components
+#   lädt den Code nur auf deinem Gerät, wir verteilen ihn nicht.
+# - Laut README getestet an einer Alpicool CX40, laut smarthomeundmore.de auch an
+#   einer älteren Plug-In-Festivals-Box. An einer IceCubeX ist nichts belegt.
+# - Die Schlüssel unten stammen aus dem README der Komponente. Nicht selbst getestet.
+#
+# Wichtig: Solange der ESP32 verbunden ist, kann sich weder die Handy-App noch
+# Home Assistant direkt mit der Box verbinden (die Box erlaubt nur einen Client).
+
+esphome:
+  name: kuehlbox
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+logger:
+api:
+  encryption:
+    key: !secret api_encryption_key
+ota:
+  - platform: esphome
+    password: !secret ota_password
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+external_components:
+  - source: github://neftaly/esphome-alpicool
+
+esp32_ble_tracker:
+
+ble_client:
+  - mac_address: "XX:XX:XX:XX:XX:XX" # MAC der Box, z. B. aus nRF Connect
+    id: alpicool
+
+alpicool_ble:
+  ble_client_id: alpicool
+  id: fridge
+
+climate:
+  - platform: alpicool_ble
+    name: "Kühlbox"
+
+sensor:
+  - platform: alpicool_ble
+    current_temperature:
+      name: "Kühlbox Temperatur"
+    target_temperature:
+      name: "Kühlbox Solltemperatur"
+    battery_percent:
+      name: "Kühlbox Batterie"
+    battery_voltage:
+      name: "Kühlbox Spannung"
+
+switch:
+  - platform: alpicool_ble
+    power:
+      name: "Kühlbox Ein"
+    controls_lock:
+      name: "Kühlbox Tastensperre"
+
+select:
+  - platform: alpicool_ble
+    run_mode:
+      name: "Kühlbox Modus"
+    battery_saver:
+      name: "Kühlbox Batterieschutz"
