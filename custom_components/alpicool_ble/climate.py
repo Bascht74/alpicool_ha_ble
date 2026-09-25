@@ -57,7 +57,10 @@ class AlpicoolClimateZone(AlpicoolEntity, ClimateEntity):
     _attr_hvac_modes = [HVACMode.COOL, HVACMode.OFF]
     _attr_target_temperature_step = 1.0
     _attr_supported_features = (
-        ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.PRESET_MODE
+        ClimateEntityFeature.TARGET_TEMPERATURE
+        | ClimateEntityFeature.PRESET_MODE
+        | ClimateEntityFeature.TURN_ON
+        | ClimateEntityFeature.TURN_OFF
     )
 
     def __init__(self, entry: ConfigEntry, api: FridgeApi, zone: str) -> None:
@@ -172,6 +175,14 @@ class AlpicoolClimateZone(AlpicoolEntity, ClimateEntity):
         await asyncio.sleep(0.5)
         if await self.api.update_status():
             async_dispatcher_send(self.hass, f"{DOMAIN}_{self._address}_update")
+
+    async def async_turn_on(self) -> None:
+        """Switch the fridge on."""
+        await self.async_set_hvac_mode(HVACMode.COOL)
+
+    async def async_turn_off(self) -> None:
+        """Switch the fridge off."""
+        await self.async_set_hvac_mode(HVACMode.OFF)
 
     async def async_set_temperature(self, **kwargs: Any) -> None:
         """Set new target temperature for this zone."""

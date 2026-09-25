@@ -1,0 +1,166 @@
+"""Regression tests for fixes found in the review of 2026-09-25."""
+
+from unittest.mock import AsyncMock, MagicMock, patch
+
+from homeassistant.components.climate import ClimateEntityFeature
+from homeassistant.components.climate.const import HVACMode
+from pytest_homeassistant_custom_component.common import MockConfigEntry
+
+from custom_components.alpicool_ble.api import FridgeApi
+from custom_components.alpicool_ble.climate import AlpicoolClimateZone
+from custom_components.alpicool_ble.const import DOMAIN, Request
+from custom_components.alpicool_ble.number import NUMBERS, AlpicoolNumber
+from custom_components.alpicool_ble.select import AlpicoolBatterySaverSelect
+from custom_components.alpicool_ble.sensor import SENSORS, AlpicoolSensor
+from custom_components.alpicool_ble.switch import AlpicoolLockSwitch
+
+from test_api import DUAL_ZONE_PAYLOAD, SINGLE_ZONE_PAYLOAD
+
+ADDRESS = "AA:BB:CC:DD:EE:FF"
+
+
+def _entry() -> MockConfigEntry:
+    return MockConfigEntry(
+        domain=DOMAIN, data={"address": ADDRESS, "name": "Fridge"}, options={}
+    )
+
+
+def _api(**status) -> MagicMock:
+    api = MagicMock()
+    api.status = status
+    api.is_available = True
+    api.is_fahrenheit = False
+    api.async_set_values = AsyncMock()
+    api.update_status = AsyncMock(return_value=True)
+    return api
+
+
+def _frame(cmd: int, payload: bytes, checksum: bool = True) -> bytearray:
+    """Build a frame; real fridges append a two byte checksum."""
+    frame = bytearray(b"\xfe\xfe")
+    frame.append(len(payload) + 1 + (2 if checksum else 0))
+    frame.append(cmd)
+    frame.extend(payload)
+    if checksum:
+        frame.extend((sum(frame) & 0xFFFF).to_bytes(2, "big"))
+    return frame
+
+
+# --- Battery 0x7F -----------------------------------------------------------
+
+
+def test_battery_percent_unknown_is_none() -> None:
+    """0x7F means the fridge does not know the charge level."""
+    sensor = AlpicoolSensor(
+        _entry(), _api(bat_percent=0x7F), "battery_percent", SENSORS["battery_percent"]
+    )
+    assert sensor.native_value is None
+
+
+def test_battery_percent_known_is_passed_through() -> None:
+    """Real values are unchanged."""
+    sensor = AlpicoolSensor(
+        _entry(), _api(bat_percent=87), "battery_percent", SENSORS["battery_percent"]
+    )
+    assert sensor.native_value == 87
+
+
+# --- Names do not repeat the device name ----------------------------------
+
+
+def test_entity_names_do_not_repeat_the_device_name() -> None:
+    """has_entity_name adds the device name, so the entity name must not."""
+    api = _api()
+    assert (
+        AlpicoolSensor(
+            _entry(), api, "battery_voltage", SENSORS["battery_voltage"]
+        ).name
+        == "Battery Voltage"
+    )
+    assert AlpicoolLockSwitch(_entry(), api).name == "Lock"
+    assert (
+        AlpicoolNumber(_entry(), api, "start_delay", NUMBERS["start_delay"]).name
+        == "Start Delay"
+    )
+
+
+# --- Refresh after writes -------------------------------------------------
+
+
+async def _run_and_check_refresh(entity, call) -> None:
+    entity.hass = MagicMock()
+    with (
+        patch("custom_components.alpicool_ble.entity.asyncio.sleep", AsyncMock()),
+        patch("custom_components.alpicool_ble.entity.async_dispatcher_send") as send,
+    ):
+        await call()
+    entity.api.update_status.assert_awaited_once()
+    send.assert_called_once()
+
+
+async def test_lock_switch_refreshes_after_write() -> None:
+    """Turning the lock on reads the new status."""
+    switch = AlpicoolLockSwitch(_entry(), _api(locked=False))
+    await _run_and_check_refresh(switch, switch.async_turn_on)
+    switch.api.async_set_values.assert_awaited_once_with({"locked": True})
+
+
+async def test_select_refreshes_after_write() -> None:
+    """Changing the battery saver reads the new status."""
+    select = AlpicoolBatterySaverSelect(_entry(), _api(bat_saver=0))
+    await _run_and_check_refresh(select, lambda: select.async_select_option("High"))
+    select.api.async_set_values.assert_awaited_once_with({"bat_saver": 2})
+
+
+async def test_number_refreshes_after_write() -> None:
+    """Changing a number reads the new status."""
+    number = AlpicoolNumber(
+        _entry(), _api(start_delay=0), "start_delay", NUMBERS["start_delay"]
+    )
+    await _run_and_check_refresh(number, lambda: number.async_set_native_value(3))
+    number.api.async_set_values.assert_awaited_once_with({"start_delay": 3})
+
+
+# --- SET answer carries the new status ------------------------------------
+
+
+def test_set_answer_with_status_is_decoded() -> None:
+    """The fridge answers SET with its full status; use it."""
+    fridge = FridgeApi(MagicMock(), ADDRESS)
+    fridge._notification_handler(None, _frame(Request.SET, SINGLE_ZONE_PAYLOAD))
+    assert fridge.status["left_target"] == -5
+    assert fridge._status_updated_event.is_set()
+
+
+def test_set_echo_and_status_in_one_notification() -> None:
+    """An echo of the SET command is skipped, the status after it is used."""
+    fridge = FridgeApi(MagicMock(), ADDRESS)
+    echo = _frame(Request.SET, SINGLE_ZONE_PAYLOAD[:14])
+    fridge._notification_handler(None, echo + _frame(Request.SET, DUAL_ZONE_PAYLOAD))
+    assert fridge.status["right_target"] == -10
+
+
+def test_set_echo_alone_is_not_status() -> None:
+    """A 14 or 25 byte echo must not be decoded as status."""
+    fridge = FridgeApi(MagicMock(), ADDRESS)
+    fridge._notification_handler(None, _frame(Request.SET, DUAL_ZONE_PAYLOAD[:25]))
+    fridge._notification_handler(
+        None, _frame(Request.SET, SINGLE_ZONE_PAYLOAD[:14], checksum=False)
+    )
+    assert fridge.status == {}
+    assert not fridge._status_updated_event.is_set()
+
+
+# --- climate.turn_on / turn_off -------------------------------------------
+
+
+async def test_climate_supports_turn_on_and_off() -> None:
+    """turn_on/turn_off are advertised and map to the hvac mode."""
+    zone = AlpicoolClimateZone(_entry(), _api(powered_on=False), "left")
+    assert zone.supported_features & ClimateEntityFeature.TURN_ON
+    assert zone.supported_features & ClimateEntityFeature.TURN_OFF
+    with patch.object(zone, "async_set_hvac_mode", AsyncMock()) as set_mode:
+        await zone.async_turn_on()
+        set_mode.assert_awaited_once_with(HVACMode.COOL)
+        await zone.async_turn_off()
+        set_mode.assert_awaited_with(HVACMode.OFF)

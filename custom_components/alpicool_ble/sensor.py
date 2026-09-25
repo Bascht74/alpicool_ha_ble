@@ -16,6 +16,16 @@ from .api import FridgeApi
 from .const import DOMAIN
 from .entity import AlpicoolEntity
 
+# The fridge reports 0x7F when it does not know the charge level.
+BATTERY_PERCENT_UNKNOWN = 0x7F
+
+
+def _battery_percent(status: dict) -> int | None:
+    """Return the charge level, or None when the fridge reports it as unknown."""
+    value = status.get("bat_percent")
+    return None if value == BATTERY_PERCENT_UNKNOWN else value
+
+
 SENSORS = {
     "battery_percent": {
         "name": "Battery",
@@ -23,7 +33,7 @@ SENSORS = {
         "device_class": SensorDeviceClass.BATTERY,
         "state_class": SensorStateClass.MEASUREMENT,
         "entity_category": EntityCategory.DIAGNOSTIC,
-        "value_fn": lambda status: status.get("bat_percent"),
+        "value_fn": lambda status: _battery_percent(status),
     },
     "battery_voltage": {
         "name": "Battery Voltage",
@@ -65,7 +75,7 @@ class AlpicoolSensor(AlpicoolEntity, SensorEntity):
         self._sensor_def = sensor_def
 
         self._attr_unique_id = f"{self._address}_{self._sensor_key}"
-        self._attr_name = f"{entry.data['name']} {self._sensor_def['name']}"
+        self._attr_name = self._sensor_def["name"]
         self._attr_device_class = self._sensor_def.get("device_class")
         self._attr_native_unit_of_measurement = self._sensor_def.get("unit")
         self._attr_state_class = self._sensor_def.get("state_class")
