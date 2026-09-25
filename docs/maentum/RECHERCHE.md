@@ -60,7 +60,7 @@ Vollständig in [PROTOKOLL.md](PROTOKOLL.md). Hauptquellen:
    0E06000000000000000080000A00000000000000
    0000000000000635
    ```
-   Entschlüsselt: an, Sperre aus, Eco, Batterieschutz hoch, Soll 4 °C, Ist 5 °C, Bereich −20..20 °C, Hysterese 2, °C, Akku 100 %, 14,6 V. Nutzdaten sind 42 statt 18/28 Byte; die Temperatur der zweiten Zone ist 0x80 (−128), *abgeleitet*: keine zweite Zone. Die Bytes 28–41 sind unbekannt. Offen: ob SET (Sollwert setzen) wie bei Alpicool funktioniert.
+   Entschlüsselt: an, Sperre aus, Eco, Batterieschutz hoch, Soll 4 °C, Ist 5 °C, Bereich −20..20 °C, Hysterese 2, °C, Akku 100 %, 14,6 V. Nutzdaten sind 42 statt 18/28 Byte; die Temperatur der zweiten Zone ist 0x80 (−128), *abgeleitet*: keine zweite Zone. Die Bytes 28–41 sind unbekannt. Solltemperatur setzen mit `FEFE040505020A` (Befehl 0x05, 5 °C) funktioniert laut Display. Offen: die übrigen Einstellungen per Befehl 0x02.
 2. Gültige Wertebereiche für Hysterese und Startverzögerung: in keiner Quelle dokumentiert.
 3. Bedeutung des Bytes `running_status` (Dual-Zone, Offset 0x1B): laut BrassMonkey unbekannt.
 4. Zweck der zusätzlichen Characteristic `0xFFF1`: laut neftaly unbekannt; das Abonnieren kann bei manchen Firmwares die Verbindung trennen.
