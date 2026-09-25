@@ -21,7 +21,9 @@ from homeassistant.const import CONF_ADDRESS, CONF_NAME
 from homeassistant.core import callback
 
 from .const import (
+    CONF_BIND_ON_START,
     CONF_DUAL_ZONE_MODES,
+    DEFAULT_BIND_ON_START,
     FRIDGE_NOTIFY_UUID,
     FRIDGE_RW_CHARACTERISTIC_UUID,
     CONF_LEFT_NAME,
@@ -138,6 +140,9 @@ class AlpicoolConfigFlow(ConfigFlow, domain=DOMAIN):
                         CONF_DUAL_ZONE_MODES: user_input.get(
                             CONF_DUAL_ZONE_MODES, False
                         ),
+                        CONF_BIND_ON_START: user_input.get(
+                            CONF_BIND_ON_START, DEFAULT_BIND_ON_START
+                        ),
                     },
                 )
 
@@ -154,6 +159,7 @@ class AlpicoolConfigFlow(ConfigFlow, domain=DOMAIN):
                 vol.Required(CONF_ADDRESS, default=default_address): str,
                 vol.Optional(CONF_NAME, default=default_name): str,
                 vol.Optional(CONF_DUAL_ZONE_MODES, default=False): bool,
+                vol.Optional(CONF_BIND_ON_START, default=DEFAULT_BIND_ON_START): bool,
             }
         )
 
@@ -180,6 +186,12 @@ class AlpicoolOptionsFlow(OptionsFlow):
                 vol.Optional(
                     CONF_DUAL_ZONE_MODES,
                     default=get_option(entry, CONF_DUAL_ZONE_MODES, False),
+                ): bool,
+                vol.Optional(
+                    CONF_BIND_ON_START,
+                    default=get_option(
+                        entry, CONF_BIND_ON_START, DEFAULT_BIND_ON_START
+                    ),
                 ): bool,
                 vol.Optional(
                     CONF_LEFT_NAME,
