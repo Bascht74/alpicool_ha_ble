@@ -1,6 +1,6 @@
-# Alpicool, BrassMonkey, Ocean Comfort, ... 12V/24V BLE Fridge Integration for Home Assistant
+# Alpicool, BrassMonkey, Ocean Comfort, MAENTUM, ... 12V/24V BLE Fridge Integration for Home Assistant
 
-This is a Home Assistant Custom Component to control Alpicool, BrassMonkey, Ocean Comfort, or other compatible portable fridges via Bluetooth Low Energy (BLE).
+This is a Home Assistant Custom Component to control Alpicool, BrassMonkey, Ocean Comfort, MAENTUM or other compatible portable fridges via Bluetooth Low Energy (BLE).
 
 This integration creates multiple entities in Home Assistant, allowing you to monitor and control all known aspects of your fridge.
 
@@ -30,9 +30,22 @@ This integration supports !!!untested!!! **both single and dual-zone fridges**.
 * For **single-zone** models, only one `climate` entity is created.
 
 ***
-## MAENTUM / Plug In Festivals cooler boxes
+## MAENTUM cooler boxes (Plug-in Festivals GmbH)
 
-Some MAENTUM (formerly Plug In Festivals) boxes are reported to use the same protocol. A German guide with a probe script to check your box, research notes, a HACS vs. ESPHome comparison and a code review is in [docs/maentum](docs/maentum/README.md).
+MAENTUM compressor cooler boxes speak the same protocol.
+
+| Model | Status |
+|---|---|
+| ICECUBE X 50 | Tested on 2026-09-25: advertises service `0x1234` (used for discovery) under the name `A1-…`; status and target temperature confirmed, settings are read correctly. Single zone. |
+| Other MAENTUM / Plug-in Festivals boxes | Reported by users to use the same protocol, not tested here. Check your box with the probe script in [docs/maentum](docs/maentum/README.md). |
+
+Notes:
+
+* The box needs a Bluetooth receiver in range that can **connect**: a local adapter or an ESPHome Bluetooth proxy with `active: true`. Receivers that only listen, such as Shelly devices, are not enough.
+* Close the MAENTUM app first; the box accepts only one connection at a time.
+* The box answers without the "Bind" step, so the "Pair on start-up (Bind)" option can be switched off.
+
+A guide (probe script, research notes, HACS vs. ESPHome comparison, code review) is in [docs/maentum](docs/maentum/README.md).
 
 ***
 ## Installation
