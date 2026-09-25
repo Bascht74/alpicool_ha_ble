@@ -44,6 +44,16 @@ def _is_set_status(payload: bytes) -> bool:
     return len(payload) >= 18 and len(payload) not in _SET_ECHO_SIZES
 
 
+# Value the fridge reports as the temperature of a zone it does not have. A
+# MAENTUM IceCubeX (single zone) sends a 42 byte status with 0x80 there.
+_NO_ZONE_TEMPERATURE = -128
+
+
+def has_right_zone(status: dict) -> bool:
+    """Return True if the fridge reported a real second zone."""
+    return status.get("right_current", _NO_ZONE_TEMPERATURE) != _NO_ZONE_TEMPERATURE
+
+
 class FridgeApi:
     """A class to interact with the fridge."""
 
