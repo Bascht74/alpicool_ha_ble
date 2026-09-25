@@ -85,4 +85,4 @@ class AlpicoolNumber(AlpicoolEntity, NumberEntity):
     async def async_set_native_value(self, value: float) -> None:
         """Update the current value."""
         await self.api.async_set_values({self._number_key: int(value)})
-        await self.async_refresh_after_write()
+        await self._async_refresh_after_write()
