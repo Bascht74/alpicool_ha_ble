@@ -12,7 +12,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
-from .api import FridgeApi
+from .api import FridgeApi, has_right_zone
 from .const import (
     CONF_DUAL_ZONE_MODES,
     CONF_LEFT_NAME,
@@ -44,7 +44,7 @@ async def async_setup_entry(
 
     entities = [AlpicoolClimateZone(entry, api, "left")]
 
-    if "right_current" in api.status:
+    if has_right_zone(api.status):
         _LOGGER.debug("Dual-zone fridge detected, adding right zone entity")
         entities.append(AlpicoolClimateZone(entry, api, "right"))
 
@@ -57,7 +57,10 @@ class AlpicoolClimateZone(AlpicoolEntity, ClimateEntity):
     _attr_hvac_modes = [HVACMode.COOL, HVACMode.OFF]
     _attr_target_temperature_step = 1.0
     _attr_supported_features = (
-        ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.PRESET_MODE
+        ClimateEntityFeature.TARGET_TEMPERATURE
+        | ClimateEntityFeature.PRESET_MODE
+        | ClimateEntityFeature.TURN_ON
+        | ClimateEntityFeature.TURN_OFF
     )
 
     def __init__(self, entry: ConfigEntry, api: FridgeApi, zone: str) -> None:
@@ -79,7 +82,7 @@ class AlpicoolClimateZone(AlpicoolEntity, ClimateEntity):
     @property
     def _is_dual_zone(self) -> bool:
         """Helper to check if this is a dual-zone model."""
-        return "right_current" in self.api.status
+        return has_right_zone(self.api.status)
 
     @property
     def temperature_unit(self) -> str:
@@ -172,6 +175,14 @@ class AlpicoolClimateZone(AlpicoolEntity, ClimateEntity):
         await asyncio.sleep(0.5)
         if await self.api.update_status():
             async_dispatcher_send(self.hass, f"{DOMAIN}_{self._address}_update")
+
+    async def async_turn_on(self) -> None:
+        """Switch the fridge on."""
+        await self.async_set_hvac_mode(HVACMode.COOL)
+
+    async def async_turn_off(self) -> None:
+        """Switch the fridge off."""
+        await self.async_set_hvac_mode(HVACMode.OFF)
 
     async def async_set_temperature(self, **kwargs: Any) -> None:
         """Set new target temperature for this zone."""
