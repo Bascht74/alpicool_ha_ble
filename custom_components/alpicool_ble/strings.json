@@ -40,7 +40,7 @@
         },
         "data_description": {
           "dual_zone_modes": "Leave this off unless your dual zone fridge switches between a combined Fridge mode and a Freezer mode. It does not control whether a second zone is created — that is detected automatically.",
-          "left_name": "For example Left, Top or Fridge.",
+          "left_name": "For example Left, Top or Fridge. On single zone fridges \"Left\" means: use the device name.",
           "right_name": "For example Right, Bottom or Freezer. Only used on dual zone models.",
           "bind_on_start": "The fridge shows \"APP\" and waits up to 20 s for its button on every start of Home Assistant. According to the protocol notes (BrassMonkeyFridgeMonitor) pairing is not required; turn it off if your fridge answers without it."
         }
