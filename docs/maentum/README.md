@@ -1,87 +1,88 @@
-# MAENTUM-Kühlboxen mit dieser Integration
+# MAENTUM cooler boxes with this integration
 
-Anleitung, Recherche und Werkzeuge, um MAENTUM-Kühlboxen (früher „Plug In Festivals“) per Bluetooth Low Energy in Home Assistant einzubinden.
+Guide, research and tools for connecting MAENTUM cooler boxes (made by Plug-in Festivals GmbH) to Home Assistant via Bluetooth Low Energy.
 
-> **Stand 25.09.2026, bitte lesen:** Für ältere Plug-In-Festivals-Boxen gibt es Nutzerberichte, dass sie das offene **Alpicool-Protokoll** sprechen. Für die **IceCube X 50** ist es seit dem 25.09.2026 an einem Gerät belegt: Sie bietet Dienst 0x1234 an und beantwortet die Statusabfrage im Alpicool-Format (siehe [RECHERCHE.md](RECHERCHE.md), Abschnitt 5). Auch das Setzen der Solltemperatur (Befehl 0x05) funktioniert. Die übrigen Einstellungen (Befehl 0x02) sind noch nicht an der Box getestet. Andere Modelle prüfst du zuerst mit Schritt 1. Nicht mit MAENTUM verbunden oder von MAENTUM unterstützt.
+> **As of 2026-09-25, please read:** For older Plug In Festivals boxes there are user reports that they speak the open **Alpicool protocol**. For the **IceCube X 50** this has been confirmed on one device since 2026-09-25: it offers service 0x1234 and answers the status query in the Alpicool format (see [RESEARCH.md](RESEARCH.md), section 5). Setting the target temperature (command 0x05) works too. The remaining settings (command 0x02) have not yet been tested on the box. Check other models with step 1 first. Not affiliated with or supported by MAENTUM.
 
-## Inhalt
+## Contents
 
-| Pfad | Inhalt |
+| Path | Contents |
 |---|---|
-| [`tools/maentum_probe.py`](../../tools/maentum_probe.py) | Prüfskript: findet die Box, listet ihre GATT-Dienste, liest und decodiert den Status |
-| [`tools/alpicool_protocol.py`](../../tools/alpicool_protocol.py) | Protokoll-Codec ohne Abhängigkeiten, getestet mit echten Mitschnitten |
-| [`RECHERCHE.md`](RECHERCHE.md) | alle Quellen, jeweils mit Belastbarkeit (belegt / berichtet / unbekannt) |
-| [`PROTOKOLL.md`](PROTOKOLL.md) | das Protokoll mit Quellenangabe je Detail |
-| [`VERGLEICH_HACS_ESPHOME.md`](VERGLEICH_HACS_ESPHOME.md) | Vor- und Nachteile HACS-Integration vs. ESPHome |
-| [`REVIEW_alpicool_ha_ble.md`](REVIEW_alpicool_ha_ble.md) | Code-Review dieser Integration mit Verbesserungsvorschlägen |
-| [`esphome/kuehlbox.yaml`](esphome/kuehlbox.yaml) | Beispielkonfiguration für den ESPHome-Weg |
+| [`tools/maentum_probe.py`](../../tools/maentum_probe.py) | Probe script: finds the box, lists its GATT services, reads and decodes the status |
+| [`tools/alpicool_protocol.py`](../../tools/alpicool_protocol.py) | Dependency-free protocol codec, tested with real captures |
+| [`RESEARCH.md`](RESEARCH.md) | all sources, each with its reliability (confirmed / reported / unknown) |
+| [`PROTOCOL.md`](PROTOCOL.md) | the protocol, with a source for each detail |
+| [`HACS_VS_ESPHOME.md`](HACS_VS_ESPHOME.md) | pros and cons of the HACS integration vs. ESPHome |
+| [`REVIEW.md`](REVIEW.md) | code review of this integration with suggested improvements |
+| [`esphome/cooler_box.yaml`](esphome/cooler_box.yaml) | example configuration for the ESPHome route |
 
-## Schritt 1: Spricht meine Box das Alpicool-Protokoll?
+## Step 1: Does my box speak the Alpicool protocol?
 
-**Variante A, ohne Computer (1 Minute):**
+**Option A, without a computer (1 minute):**
 
-1. MAENTUM-App auf dem Handy schließen (die Box erlaubt nur **eine** Verbindung).
-2. App **nRF Connect for Mobile** (Nordic Semiconductor) installieren und scannen.
-3. Die Box in der Liste suchen (direkt daneben stehen, nach Signalstärke filtern; oder Box kurz ausschalten und schauen, welches Gerät verschwindet), Namen notieren, **Connect** tippen. Android zeigt auch die MAC-Adresse, das iPhone nicht.
-4. Taucht ein Dienst **`0x1234`** mit den Characteristics **`0x1235`** und **`0x1236`** auf, spricht die Box das Protokoll. Weiter mit Schritt 2.
+1. Close the MAENTUM app on your phone (the box allows only **one** connection).
+2. Install the app **nRF Connect for Mobile** (Nordic Semiconductor) and scan.
+3. Find the box in the list (stand right next to it and filter by signal strength; or briefly switch the box off and see which device disappears), note its name, tap **Connect**. Android also shows the MAC address, the iPhone does not.
+4. If a service **`0x1234`** with the characteristics **`0x1235`** and **`0x1236`** appears, the box speaks the protocol. Continue with step 2.
 
-**Variante B, mit dem Prüfskript** (Linux, macOS oder Windows mit Bluetooth, Python ≥ 3.11):
+**Option B, with the probe script** (Linux, macOS or Windows with Bluetooth, Python ≥ 3.11):
 
 ```bash
 git clone https://github.com/Bascht74/alpicool_ha_ble.git && cd alpicool_ha_ble
 python3 -m venv .venv && . .venv/bin/activate
 pip install bleak
 
-python tools/maentum_probe.py scan               # Boxen in der Nähe, bekannte mit „fridge?“
-python tools/maentum_probe.py scan --all         # alle BLE-Geräte, falls der Name unbekannt ist
-python tools/maentum_probe.py services AA:BB:CC:DD:EE:FF   # GATT-Dienste auflisten (nur lesen)
-python tools/maentum_probe.py query AA:BB:CC:DD:EE:FF      # Status lesen und decodieren (nur lesen)
-python tools/maentum_probe.py -v query AA:BB:CC:DD:EE:FF --loop 10   # mit Rohdaten, alle 10 s
+python tools/maentum_probe.py scan               # boxes nearby, known ones marked "fridge?"
+python tools/maentum_probe.py scan --all         # all BLE devices, in case the name is unknown
+python tools/maentum_probe.py services AA:BB:CC:DD:EE:FF   # list GATT services (read-only)
+python tools/maentum_probe.py query AA:BB:CC:DD:EE:FF      # read and decode the status (read-only)
+python tools/maentum_probe.py -v query AA:BB:CC:DD:EE:FF --loop 10   # with raw data, every 10 s
 ```
 
-`query` gibt den Status als JSON aus (Soll/Ist, Spannung, Modus …). Stimmen die Werte mit dem Display der Box überein, ist die Box kompatibel. `set-target --temp 4` ändert testweise die Solltemperatur; das ist der einzige schreibende Befehl und muss ausdrücklich aufgerufen werden.
+`query` prints the status as JSON (target/current, voltage, mode …). If the values match the box's display, the box is compatible. `set-target --temp 4` changes the target temperature as a test; this is the only writing command and must be invoked explicitly.
 
-**Wenn `0x1234` fehlt:** Die Box nutzt ein anderes Protokoll. Dann bitte die Ausgabe von `services` (oder einen Screenshot aus nRF Connect) in einem Issue posten. Für die weitere Analyse braucht es einen Bluetooth-Mitschnitt der MAENTUM-App (Android: Entwickleroptionen → „Bluetooth-HCI-Snoop-Protokoll aktivieren“).
+**If `0x1234` is missing:** The box uses a different protocol. In that case please post the output of `services` (or a screenshot from nRF Connect) in an issue. Further analysis requires a Bluetooth capture of the MAENTUM app (Android: Developer options → "Enable Bluetooth HCI snoop log").
 
-## Schritt 2: Integration installieren
+## Step 2: Install the integration
 
-Voraussetzung: Home Assistant mit Bluetooth, entweder ein Adapter am HA-Rechner in Reichweite der Box oder ein [ESPHome-Bluetooth-Proxy](https://esphome.io/components/bluetooth_proxy/) in der Nähe der Box.
+Prerequisite: Home Assistant with Bluetooth, either an adapter on the HA machine within range of the box or an [ESPHome Bluetooth proxy](https://esphome.io/components/bluetooth_proxy/) near the box.
 
-1. [HACS](https://hacs.xyz/) öffnen → Menü oben rechts → **Benutzerdefinierte Repositories**.
-2. Repository `https://github.com/Gruni22/alpicool_ha_ble`, Typ **Integration**, hinzufügen.
-3. „Alpicool BLE“ suchen, installieren, Home Assistant neu starten.
-4. **Einstellungen → Geräte & Dienste → Integration hinzufügen → „Alpicool BLE“**.
-5. MAC-Adresse der Box aus Schritt 1 eintragen, Namen vergeben. Zeigt die Box „APP“ im Display, kurz die Taste an der Box drücken.
+1. Open [HACS](https://hacs.xyz/) → menu at the top right → **Custom repositories**.
+2. Add the repository `https://github.com/Gruni22/alpicool_ha_ble`, type **Integration**.
+3. Search for "Alpicool BLE", install it, restart Home Assistant.
+4. **Settings → Devices & services → Add integration → "Alpicool BLE"**.
+5. Enter the box's MAC address from step 1 and give it a name. If the box shows "APP" on its display, briefly press the button on the box.
 
-Danach gibt es eine Klima-Entität (Ein/Aus, Solltemperatur, Max/Eco), Sensoren für Akku und Spannung, eine Tastensperre, Batterieschutz sowie Hysterese und Startverzögerung.
+You then get a climate entity (on/off, target temperature, Max/Eco), sensors for battery and voltage, a button lock, battery protection, as well as hysteresis and start delay.
 
-## Bekannte Einschränkungen
+## Known limitations
 
-- Solange Home Assistant verbunden ist, kann sich die Handy-App nicht verbinden, und umgekehrt (Eigenschaft der Box, BrassMonkeyFridgeMonitor).
-- Im Pekaway-Forum wird von gelegentlichen Verbindungsabbrüchen berichtet. Ein Bluetooth-Proxy nahe der Box hilft meist.
-- Offene Punkte der Integration stehen im [Review](REVIEW_alpicool_ha_ble.md), z. B. 127 % Akku bei Boxen ohne Akku-Messung.
+- While Home Assistant is connected, the phone app cannot connect, and vice versa (a property of the box, BrassMonkeyFridgeMonitor).
+- The Pekaway forum reports occasional connection drops. A Bluetooth proxy near the box usually helps.
+- Open issues of the integration are listed in the [review](REVIEW.md), e.g. 127 % battery on boxes without battery measurement.
 
-## Fehlersuche
+## Troubleshooting
 
-| Symptom | Ursache / Abhilfe |
+| Symptom | Cause / remedy |
 |---|---|
-| Box wird nicht gefunden | Handy-App schließen; Box ein; Abstand verringern; `scan --all` |
-| `services` meldet „NOT present“ | anderes Protokoll, siehe Schritt 1 |
-| `query` bekommt keine Antwort | Box aus- und einschalten; mit `--bind` versuchen und Taste an der Box drücken |
-| Werte in HA veralten | Logs der Integration auf Debug stellen (`logger: logs: custom_components.alpicool_ble: debug`) |
+| Box is not found | close the phone app; switch the box on; move closer; `scan --all` |
+| `services` reports "NOT present" | different protocol, see step 1 |
+| `query` gets no answer | switch the box off and on; try with `--bind` and press the button on the box |
+| HA does not find the box although Bluetooth is set up | HA needs a receiver that can **connect**: a built-in adapter, a USB stick or an ESPHome Bluetooth proxy in range (with `active: true`). Shelly devices only listen and are not enough. The setup message says which case applies. |
+| Values in HA go stale | set the integration's logs to debug (`logger: logs: custom_components.alpicool_ble: debug`) |
 
-## Tests des Prüfskripts
+## Tests of the probe script
 
 ```bash
 pip install -r requirements-test.txt
 pytest -q tests/test_tools_protocol.py tests/test_tools_probe.py
 ```
 
-## Quellen und Dank
+## Sources and thanks
 
-- Protokoll: [klightspeed/BrassMonkeyFridgeMonitor](https://github.com/klightspeed/BrassMonkeyFridgeMonitor) (MIT)
-- Testvektoren und Praxisdetails: [neftaly/esphome-alpicool](https://github.com/neftaly/esphome-alpicool)
-- Home-Assistant-Integration: [Gruni22/alpicool_ha_ble](https://github.com/Gruni22/alpicool_ha_ble)
-- Anlass: [Pekaway-Forum](https://forum.pekaway.de/t/maentum-pluginfestival-kuhlboxen-per-bluetooth-einbinden-und-steuern/2302), [smarthomeundmore.de](https://smarthomeundmore.de/home-assistant-kuehlbox-smart-bluetooth-esphome/)
+- Protocol: [klightspeed/BrassMonkeyFridgeMonitor](https://github.com/klightspeed/BrassMonkeyFridgeMonitor) (MIT)
+- Test vectors and practical details: [neftaly/esphome-alpicool](https://github.com/neftaly/esphome-alpicool)
+- Home Assistant integration: [Gruni22/alpicool_ha_ble](https://github.com/Gruni22/alpicool_ha_ble)
+- Motivation: [Pekaway forum](https://forum.pekaway.de/t/maentum-pluginfestival-kuhlboxen-per-bluetooth-einbinden-und-steuern/2302), [smarthomeundmore.de](https://smarthomeundmore.de/home-assistant-kuehlbox-smart-bluetooth-esphome/)
 
-Von den Projekten ohne Lizenzdatei wurde kein Code übernommen, nur dokumentierte Fakten, jeweils mit Quellenangabe.
+No code was taken from the projects without a license file, only documented facts, each with a source.
