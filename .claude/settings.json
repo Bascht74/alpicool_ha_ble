@@ -34,7 +34,22 @@
       "mcp__Home_Assistant_Sebastian__ha_list_floors_areas",
       "mcp__Home_Assistant_Sebastian__ha_list_services",
       "mcp__Home_Assistant_Sebastian__ha_read_file",
-      "mcp__Home_Assistant_Sebastian__ha_search"
+      "mcp__Home_Assistant_Sebastian__ha_search",
+      "mcp__Home_Assistant_Sebastian__ha_set_entity",
+      "mcp__Home_Assistant_Sebastian__ha_set_device",
+      "mcp__Home_Assistant_Sebastian__ha_set_area_or_floor",
+      "mcp__Home_Assistant_Sebastian__ha_config_set_automation",
+      "mcp__Home_Assistant_Sebastian__ha_config_set_script",
+      "mcp__Home_Assistant_Sebastian__ha_config_set_helper",
+      "mcp__Home_Assistant_Sebastian__ha_config_set_group",
+      "mcp__Home_Assistant_Sebastian__ha_config_set_dashboard",
+      "mcp__Home_Assistant_Sebastian__ha_config_set_yaml",
+      "mcp__Home_Assistant_Sebastian__ha_write_file",
+      "mcp__Home_Assistant_Sebastian__ha_manage_backup",
+      "mcp__Claude_Code_Remote__read_documentation",
+      "mcp__Claude_Code_Remote__get_trigger",
+      "mcp__Claude_Code_Remote__update_trigger",
+      "mcp__Claude_Code_Remote__send_later"
     ]
   }
 }
